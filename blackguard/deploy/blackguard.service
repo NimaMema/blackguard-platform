@@ -1,0 +1,34 @@
+# systemd unit for the BLACKGUARD server. Install: see docs/DEPLOYMENT.md
+[Unit]
+Description=BLACKGUARD security monitoring server
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=blackguard
+Group=blackguard
+WorkingDirectory=/opt/blackguard
+EnvironmentFile=-/etc/blackguard/server.env
+ExecStart=/usr/bin/python3 /opt/blackguard/start.py
+Restart=always
+RestartSec=5
+# Hardening
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictSUIDSGID=yes
+LockPersonality=yes
+MemoryDenyWriteExecute=yes
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+ReadWritePaths=/opt/blackguard/data
+MemoryMax=512M
+TasksMax=256
+
+[Install]
+WantedBy=multi-user.target

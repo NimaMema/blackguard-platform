@@ -1,0 +1,25 @@
+{
+  "events": [
+    {
+      "type": "auth_failure",
+      "host": "training-gateway",
+      "source_ip": "203.0.113.14",
+      "actor": "analyst",
+      "message": "Training example: rejected SSH login"
+    },
+    {
+      "type": "network_block",
+      "host": "training-firewall",
+      "source_ip": "198.51.100.33",
+      "actor": "firewall",
+      "message": "Training example: blocked inbound TCP connection"
+    },
+    {
+      "type": "policy_change",
+      "host": "training-firewall",
+      "source_ip": "192.0.2.10",
+      "actor": "security-admin",
+      "message": "Training example: security policy rule adjusted"
+    }
+  ]
+}

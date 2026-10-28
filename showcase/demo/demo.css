@@ -1,0 +1,7 @@
+/* Static-demo additions: a permanent, unmistakable demo ribbon. */
+.demo-ribbon{position:sticky;top:0;z-index:40;background:linear-gradient(90deg,#2a2114,#3a2c16 50%,#2a2114);border-bottom:1px solid #8a6f3e;color:#f1dfb5;
+  font:11px/1.5 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.6px;padding:8px 16px;text-align:center}
+.demo-ribbon strong{color:#ffe3a3;letter-spacing:1.2px}
+.demo-ribbon a{color:#ffe3a3}
+.app-shell .sidebar{top:34px;height:calc(100vh - 34px)}
+@media(max-width:700px){.demo-ribbon{font-size:10px;padding:6px 10px}.app-shell .sidebar{top:0;height:100vh}}

@@ -1,0 +1,118 @@
+name: BLACKGUARD checks
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+defaults:
+  run:
+    working-directory: blackguard
+jobs:
+  python:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Unit, API, auth, agent, migration and dataset tests
+        run: python -W error::ResourceWarning -m unittest discover -s tests -v
+      - name: Byte-compile
+        run: python -m compileall -q guard agents start.py app.py
+
+  security:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Secret scan (tracked files)
+        run: python scripts/secret_scan.py
+      - name: Bandit static analysis
+        run: |
+          pip install bandit==1.8.6
+          bandit -q -r guard agents start.py -ll
+      - name: Dependency audit
+        run: echo "BLACKGUARD has no third-party runtime dependencies (stdlib only); nothing to audit."
+
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: JavaScript syntax
+        run: for f in web/app.js tests/e2e/*.js scripts/capture_showcase.js ../showcase/demo/demo-api.js; do node --check "$f"; done
+      - name: Showcase demo is in sync with the dashboard source
+        run: |
+          python scripts/build_showcase.py
+          git diff --exit-code -- ../showcase/demo/app.js ../showcase/demo/style.css ../showcase/demo/index.html ../showcase/demo/shield.svg
+      - name: Browser end-to-end tests (real server + static showcase, with axe-core WCAG checks)
+        run: |
+          npm install --no-save playwright@1.48.2 axe-core@4.10.2
+          npx playwright install --with-deps chromium
+          node tests/e2e/dashboard.e2e.js "$RUNNER_TEMP/screenshots"
+          node tests/e2e/showcase.e2e.js
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: dashboard-screenshots
+          path: ${{ runner.temp }}/screenshots
+
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build image and check health endpoint
+        run: |
+          docker build -t blackguard:ci .
+          docker run -d --name bg --read-only --tmpfs /tmp --cap-drop ALL -v bgdata:/app/data -p 127.0.0.1:8000:8000 blackguard:ci
+          for i in $(seq 1 30); do curl -fsS http://127.0.0.1:8000/healthz && break; sleep 1; done
+          docker logs bg | grep -q "FIRST-RUN SETUP"
+          docker stop -t 20 bg
+          docker logs bg | grep -q "stopped cleanly"
+          docker rm bg
+
+  windows-agent:
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: blackguard
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@v4
+      - name: Parse PowerShell scripts
+        run: |
+          foreach ($f in "agents/windows/BlackguardAgent.ps1", "deploy/windows/Install-BlackguardServer.ps1") {
+            $errors = $null
+            [System.Management.Automation.Language.Parser]::ParseFile("$PWD/$f", [ref]$null, [ref]$errors) | Out-Null
+            if ($errors) { $f; $errors; exit 1 }
+          }
+      - name: PSScriptAnalyzer
+        run: |
+          Install-Module PSScriptAnalyzer -Force -Scope CurrentUser
+          foreach ($f in "agents/windows/BlackguardAgent.ps1", "deploy/windows/Install-BlackguardServer.ps1") {
+            $r = Invoke-ScriptAnalyzer -Path $f -Severity Error
+            if ($r) { $f; $r | Format-Table; exit 1 }
+          }
+      - name: Windows server smoke test (start, health, clean stop)
+        run: |
+          python -m pip --version | Out-Null
+          $env:BLACKGUARD_DATA_DIR = "$env:RUNNER_TEMP\bgdata"; $env:BLACKGUARD_PORT = "8765"; $env:BLACKGUARD_SEED_DEMO = "0"
+          $p = Start-Process python -ArgumentList "start.py" -PassThru -NoNewWindow -RedirectStandardOutput "$env:RUNNER_TEMP\out.txt"
+          $ok = $false
+          for ($i = 0; $i -lt 30; $i++) { try { Invoke-RestMethod http://127.0.0.1:8765/healthz | Out-Null; $ok = $true; break } catch { Start-Sleep 1 } }
+          if (-not $ok) { Get-Content "$env:RUNNER_TEMP\out.txt"; exit 1 }
+          python start.py stop
+          if (-not $p.WaitForExit(30000)) { "server did not stop"; exit 1 }
+          Get-Content "$env:RUNNER_TEMP\out.txt"
+          if (-not (Select-String -Path "$env:RUNNER_TEMP\out.txt" -Pattern "stopped cleanly")) { exit 1 }
+          python start.py diagnose

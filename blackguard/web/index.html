@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#0d1014">
+  <meta name="description" content="BLACKGUARD — The guardian of your network and information. Local-first defensive security monitoring.">
+  <title>BLACKGUARD — Security Operations Centre</title>
+  <link rel="icon" href="/shield.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/style.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to main content</a>
+<div id="authGate" class="auth-gate" role="dialog" aria-modal="true" aria-labelledby="authTitle">
+  <div class="auth-card decorated">
+    <img src="/shield.svg" alt="BLACKGUARD crest" width="74" height="85">
+    <div class="micro gold" id="authEyebrow">RESTRICTED COMMANDERY</div>
+    <h1 id="authTitle">Enter the keep.</h1>
+    <p id="authIntro">Sign in with your BLACKGUARD account.</p>
+    <form id="loginForm">
+      <label for="loginUser">USERNAME</label>
+      <input id="loginUser" autocomplete="username" spellcheck="false" required maxlength="40">
+      <label for="loginPass">PASSWORD</label>
+      <input id="loginPass" type="password" autocomplete="current-password" required maxlength="256">
+      <button class="btn gold-btn" type="submit">Unlock command centre ↗</button>
+    </form>
+    <form id="setupForm" hidden>
+      <label for="setupCode">ONE-TIME SETUP CODE</label>
+      <input id="setupCode" autocomplete="off" spellcheck="false" required placeholder="Printed in the server console">
+      <label for="setupUser">ADMINISTRATOR USERNAME</label>
+      <input id="setupUser" autocomplete="username" spellcheck="false" required minlength="3" maxlength="40" pattern="[A-Za-z0-9_.\-]{3,40}">
+      <label for="setupPass">PASSWORD (12+ CHARACTERS; A PASSPHRASE IS IDEAL)</label>
+      <input id="setupPass" type="password" autocomplete="new-password" required minlength="12" maxlength="256">
+      <label for="setupPass2">REPEAT PASSWORD</label>
+      <input id="setupPass2" type="password" autocomplete="new-password" required minlength="12" maxlength="256">
+      <button class="btn gold-btn" type="submit">Create administrator ↗</button>
+    </form>
+    <small id="authError" role="alert"></small>
+  </div>
+</div>
+
+<div class="app-shell">
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <img src="/shield.svg" alt="" width="41" height="49">
+      <div><strong>BLACKGUARD</strong><span>DEFENSE INTELLIGENCE</span></div>
+    </div>
+    <div class="sidebar-section">THE COMMANDERY <span>01</span></div>
+    <nav aria-label="Main navigation" class="nav-list">
+      <button class="nav-item active" data-view="overview"><span class="nav-icon">✥</span> Command centre</button>
+      <button class="nav-item" data-view="incidents"><span class="nav-icon">⚔</span> Incidents <span class="nav-count" id="navIncidents">0</span></button>
+      <button class="nav-item" data-view="events"><span class="nav-icon">◈</span> Event ledger</button>
+      <button class="nav-item" data-view="devices"><span class="nav-icon">⬡</span> Device inventory <span class="nav-count muted-count" id="navDevices">0</span></button>
+      <button class="nav-item" data-view="agents"><span class="nav-icon">⛨</span> Agents <span class="nav-count" id="navAgents" hidden>0</span></button>
+      <button class="nav-item" data-view="responses"><span class="nav-icon">⚖</span> Guardian response <span class="nav-count" id="navResponses" hidden>0</span></button>
+      <button class="nav-item" data-view="rules"><span class="nav-icon">⌘</span> Detection rules</button>
+      <button class="nav-item" data-view="audit" data-perm="view_audit"><span class="nav-icon">✎</span> Audit log</button>
+      <button class="nav-item" data-view="settings"><span class="nav-icon">⚙</span> Settings</button>
+    </nav>
+    <div class="sidebar-rule"></div>
+    <div class="sidebar-section">SYSTEM STATUS</div>
+    <div class="status-card" id="statusCard"><span class="signal"></span><div><strong id="statusTitle">CONNECTING…</strong><small id="statusSub">LOCAL / PRIVATE</small></div></div>
+    <div class="sidebar-spacer"></div>
+    <div class="sidebar-bottom"><span id="whoami">—</span><small>Local-first · No cloud analytics</small></div>
+  </aside>
+
+  <div class="workspace">
+    <header class="topbar">
+      <div class="topbar-left"><button id="menuToggle" class="menu-toggle" aria-label="Toggle navigation" aria-controls="sidebar">☷</button><span class="micro">THE COMMANDERY <span class="muted">/</span> <span id="currentViewLabel">COMMAND CENTRE</span></span></div>
+      <div class="global-search" role="search">
+        <label class="sr-only" for="globalSearch">Search incidents, events, devices and agents</label>
+        <input id="globalSearch" type="search" placeholder="Search incidents, events, devices…" autocomplete="off" spellcheck="false"
+               role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="searchResults">
+        <kbd class="search-hint" aria-hidden="true">/</kbd>
+        <div id="searchResults" class="search-results" role="listbox" aria-label="Search results" hidden></div>
+      </div>
+      <div class="topbar-right"><button id="enableNotify" class="topbar-action" title="Enable browser notifications">🔔 ALERTS</button><button id="signOut" class="topbar-action" title="Sign out">SIGN OUT</button><span class="tiny-sigil">✧</span> <span id="clock">--:-- UTC</span><span class="line-sep"></span><span class="mode-tag" id="modeTagWrap" title="Which kinds of data are stored">● <span id="modeTag">—</span></span></div>
+    </header>
+    <main id="main" tabindex="-1">
+      <!-- 01 OVERVIEW -->
+      <section id="overview" class="view active" aria-labelledby="overviewTitle">
+        <div class="hero decorated">
+          <div class="hero-copy"><div class="micro gold"><span class="tiny-sigil">✦</span> THE GUARDIAN OF YOUR NETWORK AND INFORMATION</div><h1 id="overviewTitle">Security has<br><em>a new guardian.</em></h1><p>Observe the unseen. Identify what matters. Every finding here is backed by stored evidence and a documented rule — and nothing changes on your network without your approval.</p><div class="hero-actions"><button id="runDetection" class="btn gold-btn" data-perm="detect"><span>⌖</span> Run detection sweep <span>↗</span></button><button id="injectDemo" class="btn outline-btn" data-perm="detect">Inject demo incident <span>＋</span></button></div></div>
+          <div class="hero-art"><div class="aura"></div><div class="halo halo-one"></div><div class="halo halo-two"></div><img src="/shield.svg" alt="BLACKGUARD heraldic shield" width="202" height="240"><span class="hero-roman">VIGILANTIA • INVICTA</span></div>
+          <div class="corner tl">✦</div><div class="corner tr">✦</div><div class="corner bl">✦</div><div class="corner br">✦</div>
+        </div>
+        <div id="healthBanner" class="data-banner health-banner" role="status" hidden></div>
+        <div id="dataBanner" class="data-banner" hidden></div>
+        <section id="onboarding" class="panel onboarding" aria-labelledby="onboardingTitle" hidden>
+          <div class="panel-head"><div><div class="micro gold">FIRST WATCH</div><h2 id="onboardingTitle">Raise your defences</h2></div><button class="text-link" id="dismissOnboarding">HIDE CHECKLIST ✕</button></div>
+          <ol id="onboardingSteps" class="onboarding-steps"></ol>
+        </section>
+        <div class="section-eyebrow"><span>01 /</span> CURRENT SITUATION <span class="grow-line"></span><span>UPDATED <span id="updatedLabel">—</span></span></div>
+        <div class="metrics">
+          <article class="metric"><div class="metric-top">EVENTS STORED <span>◈</span></div><div class="metric-number" id="metricEvents">—</div><div class="metric-bottom" id="metricEventsSub">—</div></article>
+          <article class="metric"><div class="metric-top">ACTIVE INCIDENTS <span>⚔</span></div><div class="metric-number" id="metricIncidents">—</div><div class="metric-bottom" id="metricIncidentsSub">—</div></article>
+          <article class="metric"><div class="metric-top">CRITICAL / HIGH <span>⚑</span></div><div class="metric-number danger" id="metricCritical">—</div><div class="metric-bottom">Unresolved highest-priority findings</div></article>
+          <article class="metric"><div class="metric-top">AGENTS ONLINE <span>⛨</span></div><div class="metric-number" id="metricAgents">—</div><div class="metric-bottom" id="metricAgentsSub">—</div></article>
+        </div>
+        <div class="content-grid">
+          <article class="panel telemetry"><div class="panel-head"><div><div class="micro gold">SITUATIONAL AWARENESS</div><h2>Activity chronicle</h2></div><span class="subtle-pill">LAST 24 HOURS · HOURLY</span></div><div class="chart-info"><strong id="chartTotal">—</strong><span>events in the last 24 hours</span><span class="chart-legend"><i class="legend-block live"></i>Live <i class="legend-block imported"></i>Imported <i class="legend-block demo"></i>Demo</span></div><div class="chart-wrap"><div class="chart-grid"><span id="chartMax">—</span><span></span><span>0</span></div><div id="activityChart" class="chart-bars" role="img" aria-label="Hourly event volume"></div></div><div class="chart-caption"><span id="chartStart">—</span><span>NOW</span></div></article>
+          <article class="panel watchlist"><div class="panel-head"><div><div class="micro gold">THE WATCHTOWER</div><h2>Threat assessment</h2></div><span class="crest-mark">✥</span></div><div class="threat-ring" id="threatRing"><div class="threat-ring-inner"><span class="micro">CURRENT POSTURE</span><strong id="threatPosture">—</strong><small id="threatSub">—</small></div></div><div class="severity-list"><div><span><i class="dot critical"></i> Critical</span><strong id="countCritical">0</strong></div><div><span><i class="dot high"></i> High</span><strong id="countHigh">0</strong></div><div><span><i class="dot medium"></i> Medium</span><strong id="countMedium">0</strong></div><div><span><i class="dot low"></i> Low</span><strong id="countLow">0</strong></div></div></article>
+        </div>
+        <div class="content-grid triple-grid">
+          <article class="panel"><div class="panel-head"><div><div class="micro gold">ACTIVE INVESTIGATIONS</div><h2>Incident watchlist</h2></div><button class="text-link" data-go="incidents">VIEW ALL ↗</button></div><div id="incidentPreview" class="preview-list"></div></article>
+          <article class="panel"><div class="panel-head"><div><div class="micro gold">THE EVENT LEDGER</div><h2>Recent activity</h2></div><button class="text-link" data-go="events">OPEN LEDGER ↗</button></div><div id="eventPreview" class="preview-list"></div></article>
+          <article class="panel"><div class="panel-head"><div><div class="micro gold">THE GARRISON</div><h2>Collector health</h2></div><button class="text-link" data-go="agents">AGENTS ↗</button></div><div id="agentPreview" class="preview-list"></div></article>
+        </div>
+      </section>
+
+      <!-- 02 INCIDENTS -->
+      <section id="incidents" class="view">
+        <div class="page-heading"><div><div class="micro gold">02 / INCIDENT RESPONSE</div><h1>The watchlist.</h1><p>Every finding names its rule, evidence, confidence and the reasoning behind it. Findings are leads for a human to verify — not proof of compromise.</p></div><div class="hero-actions"><button class="btn outline-btn" id="downloadReport" data-perm="export">↓ Full report</button><button class="btn gold-btn" id="runDetection2" data-perm="detect">⌖ Run detection sweep</button></div></div>
+        <form class="filters" id="incidentFilters">
+          <input id="incidentSearch" type="search" placeholder="Search title, host, IP, rule…" aria-label="Search incidents">
+          <select id="incidentStatus" aria-label="Incident status"><option value="active">Active (open + investigating)</option><option value="">All statuses</option><option value="open">Open</option><option value="investigating">Investigating</option><option value="resolved">Resolved</option></select>
+          <select id="incidentSeverity" aria-label="Severity"><option value="">All severities</option><option value="critical">Critical</option><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option></select>
+          <select id="incidentMode" aria-label="Dataset"><option value="">Live, imported and demo</option><option value="live">Live only</option><option value="imported">Imported only</option><option value="demo">Demo only</option></select>
+          <span id="incidentResults" class="micro">—</span>
+        </form>
+        <div id="incidentList" class="incident-list"></div>
+      </section>
+
+      <!-- 02b INCIDENT WORKSPACE -->
+      <section id="incident" class="view">
+        <button class="text-link back-link" data-go="incidents">← BACK TO WATCHLIST</button>
+        <div id="incidentWorkspace"></div>
+      </section>
+
+      <!-- 03 EVENTS -->
+      <section id="events" class="view">
+        <div class="page-heading"><div><div class="micro gold">03 / THE ARCHIVE</div><h1>Event ledger.</h1><p>Search every stored event on the server. Each record shows where it came from: a verified agent, an unverified import, the server itself, or fictional demo data.</p></div></div>
+        <div class="import-panel panel" data-perm="import"><div><div class="micro gold">CONTROLLED INGESTION</div><h2>Import JSON event records</h2><p>Choose a JSON file with an <code>events</code> array (up to 500 records). Imported records are marked <em>imported / unverified</em> and are deduplicated if imported twice. Only import logs you are authorised to analyse.</p></div><label for="eventFile" class="btn outline-btn" tabindex="0" id="eventFileLabel">Choose JSON file ↗</label><input id="eventFile" type="file" accept=".json,application/json" class="sr-only"></div>
+        <form class="filters" id="eventFilters">
+          <input id="eventSearch" type="search" placeholder="Search message, account, host, IP…" aria-label="Search events">
+          <select id="eventType" aria-label="Event type"><option value="">All event types</option></select>
+          <select id="eventMode" aria-label="Origin"><option value="">All origins</option><option value="live">Live</option><option value="imported">Imported</option><option value="demo">Demo</option></select>
+          <input id="eventHost" placeholder="Host" aria-label="Host (exact)" class="narrow">
+          <input id="eventIp" placeholder="Source IP" aria-label="Source IP (exact)" class="narrow">
+          <select id="eventRange" aria-label="Time range"><option value="">Any time</option><option value="60">Last hour</option><option value="1440">Last 24 hours</option><option value="10080">Last 7 days</option><option value="43200">Last 30 days</option><option value="custom">Custom range…</option></select>
+          <label class="inline-label custom-range" hidden>From <input id="eventSince" type="datetime-local" aria-label="From (UTC)"></label>
+          <label class="inline-label custom-range" hidden>To <input id="eventUntil" type="datetime-local" aria-label="To (UTC)"></label>
+          <button class="btn outline-btn small" type="submit">Search</button>
+          <button class="btn outline-btn small" type="button" id="eventReset">Reset</button>
+          <span id="eventResults" class="micro">—</span>
+        </form>
+        <div class="panel table-panel"><div class="table-scroll" tabindex="0" role="region" aria-label="Event ledger table (scrollable)"><table class="sortable" id="eventTable"><caption class="sr-only">Stored security events. Column headers sort the loaded rows.</caption><thead><tr><th aria-sort="descending"><button data-sort="timestamp">TIME (UTC)</button></th><th aria-sort="none"><button data-sort="type">TYPE</button></th><th aria-sort="none"><button data-sort="host">HOST</button></th><th aria-sort="none"><button data-sort="source_ip">SOURCE IP</button></th><th aria-sort="none"><button data-sort="actor">ACCOUNT</button></th><th>MESSAGE</th><th aria-sort="none"><button data-sort="mode">ORIGIN</button></th></tr></thead><tbody id="eventRows"></tbody></table></div></div>
+        <div class="load-more"><button class="btn outline-btn" id="eventMore" hidden>Load older events</button></div>
+      </section>
+
+      <!-- 04 DEVICES -->
+      <section id="devices" class="view">
+        <div class="page-heading"><div><div class="micro gold">04 / THE REALM</div><h1>Device inventory.</h1><p>Devices known from approved agents, router DHCP leases, a collector's passive ARP cache, or your own entries. Each attribute is labelled <em>confirmed</em>, <em>reported</em> or <em>inferred</em>. BLACKGUARD never scans your network.</p></div><div class="hero-actions"><button class="btn outline-btn" id="addDevice" data-perm="manage_agents">＋ Add device manually</button></div></div>
+        <div class="filters"><select id="deviceFilter" aria-label="Device filter"><option value="">All devices</option><option value="unreviewed">Not yet reviewed</option><option value="monitored">Monitored by an agent</option><option value="offline">Agent offline</option></select><span id="deviceResults" class="micro">—</span></div>
+        <div id="deviceList" class="device-grid"></div>
+      </section>
+
+      <!-- 05 AGENTS -->
+      <section id="agents" class="view">
+        <div class="page-heading"><div><div class="micro gold">05 / THE GARRISON</div><h1>Agents.</h1><p>Each collector has its own credential, is approved by an administrator after a fingerprint check, and can be rotated or revoked at any time. Agents buffer events locally while the server is unreachable.</p></div><div class="hero-actions"><button class="btn gold-btn" id="newInvite" data-perm="manage_agents">＋ Enroll a device</button></div></div>
+        <div id="inviteResult"></div>
+        <div id="agentList" class="agent-list"></div>
+        <details class="panel invites-panel" data-perm="manage_agents"><summary><span class="micro gold">ENROLLMENT CODES</span> <span id="inviteCount" class="micro"></span></summary><div id="inviteList"></div></details>
+      </section>
+
+      <!-- 06 RESPONSES -->
+      <section id="responses" class="view">
+        <div class="page-heading"><div><div class="micro gold">06 / GUARDIAN RESPONSE</div><h1>Measured response.</h1><p>Actions are proposed from an incident, approved by an administrator who acknowledges the impact, carried out by a person, and recorded with a rollback plan. BLACKGUARD does not block, disconnect, reset or counter-attack anything by itself.</p></div></div>
+        <div class="filters"><select id="responseFilter" aria-label="Response status"><option value="">All actions</option><option value="proposed">Awaiting approval</option><option value="approved">Approved — to be performed</option><option value="completed">Completed</option><option value="rolled_back">Rolled back</option><option value="rejected">Rejected</option><option value="cancelled">Cancelled</option></select><span id="responseResults" class="micro">—</span></div>
+        <div id="responseList" class="incident-list"></div>
+      </section>
+
+      <!-- 07 RULES -->
+      <section id="rules" class="view">
+        <div class="page-heading"><div><div class="micro gold">07 / THE CODEX</div><h1>Rules of engagement.</h1><p>Deterministic, documented rules mapped to MITRE ATT&amp;CK where defensible. Tune thresholds to your household; every change is audited.</p></div></div>
+        <div id="ruleList" class="rule-grid"></div>
+      </section>
+
+      <!-- 08 AUDIT -->
+      <section id="audit" class="view">
+        <div class="page-heading"><div><div class="micro gold">08 / THE CHRONICLE</div><h1>Audit log.</h1><p>Sign-ins, approvals, rule changes, exports and every response decision. Entries are hash-chained so tampering with history is detectable.</p></div><span id="auditChain" class="subtle-pill">—</span></div>
+        <form class="filters" id="auditFilters"><input id="auditAction" placeholder="Action prefix, e.g. auth. or agent." aria-label="Filter by action"><button class="btn outline-btn small" type="submit">Filter</button><span id="auditResults" class="micro">—</span></form>
+        <div class="panel table-panel"><div class="table-scroll" tabindex="0" role="region" aria-label="Audit log table (scrollable)"><table><thead><tr><th>TIME (UTC)</th><th>ACTOR</th><th>ACTION</th><th>TARGET</th><th>OUTCOME</th><th>IP</th><th>DETAIL</th></tr></thead><tbody id="auditRows"></tbody></table></div></div>
+        <div class="load-more"><button class="btn outline-btn" id="auditMore" hidden>Load older entries</button></div>
+      </section>
+
+      <!-- 09 SETTINGS -->
+      <section id="settings" class="view">
+        <div class="page-heading"><div><div class="micro gold">09 / THE KEEP</div><h1>Settings.</h1><p>Your account, administrators, data retention, backups and system health.</p></div></div>
+        <div class="settings-grid">
+          <article class="panel"><div class="micro gold">YOUR ACCOUNT</div><h2>Change password</h2>
+            <form id="passwordForm" class="stack-form"><label>Current password<input type="password" id="pwCurrent" autocomplete="current-password" required></label><label>New password (12+ characters)<input type="password" id="pwNew" autocomplete="new-password" minlength="12" required></label><button class="btn gold-btn" type="submit">Change password</button></form></article>
+          <article class="panel" data-perm="manage_users"><div class="micro gold">ADMINISTRATORS &amp; ROLES</div><h2>Users</h2><div id="userList"></div>
+            <form id="userForm" class="stack-form"><label>Username<input id="newUser" required minlength="3" maxlength="40" pattern="[A-Za-z0-9_.\-]{3,40}" autocomplete="off"></label><label>Role<select id="newRole"><option value="viewer">Viewer — read only</option><option value="analyst">Analyst — investigate, import, export</option><option value="admin">Administrator — full control</option></select></label><label>Initial password (12+)<input id="newPass" type="password" minlength="12" required autocomplete="new-password"></label><button class="btn outline-btn" type="submit">Create user</button></form></article>
+          <article class="panel" data-perm="manage_system"><div class="micro gold">DATA LIFECYCLE</div><h2>Retention &amp; backups</h2>
+            <form id="retentionForm" class="stack-form"><label>Keep events (days)<input id="retEvents" type="number" min="7" max="3650" required></label><label>Keep audit log (days)<input id="retAudit" type="number" min="30" max="3650" required></label><label>Automatic daily backups to keep<input id="retBackups" type="number" min="1" max="90" required></label><button class="btn outline-btn" type="submit">Save retention</button></form>
+            <p class="hint">Evidence linked to unresolved incidents is never deleted by retention.</p>
+            <div class="row-actions"><button class="btn outline-btn" id="backupNow">Back up now</button></div><ul id="backupList" class="mono-list" aria-label="Recent backups"></ul></article>
+          <article class="panel"><div class="micro gold">SYSTEM HEALTH</div><h2>Warden status</h2><div id="healthList" class="kv-list"></div></article>
+          <article class="panel" data-perm="manage_system"><div class="micro gold">TRAINING DATA</div><h2>Demo data</h2><p class="hint">Demo records are fictional and always labelled DEMO. Remove them once real collectors are reporting.</p><div class="row-actions"><button class="btn outline-btn" id="purgeDemo">Remove all demo data…</button></div></article>
+        </div>
+      </section>
+    </main>
+    <footer><span>BLACKGUARD / DEFENSE INTELLIGENCE SYSTEM</span><span><span class="experimental-tag">EXPERIMENTAL</span> NOT INDEPENDENTLY SECURITY-CERTIFIED · DETECTION IS NOT PROOF OF COMPROMISE</span><span id="footerVersion">EST. MMXXVI</span></footer>
+  </div>
+</div>
+
+<div id="drawer" class="drawer" hidden role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
+  <div class="drawer-backdrop" data-close-drawer></div>
+  <div class="drawer-panel"><div class="drawer-head"><h2 id="drawerTitle">—</h2><button class="topbar-action" data-close-drawer aria-label="Close">CLOSE ✕</button></div><div id="drawerBody" class="drawer-body"></div></div>
+</div>
+<dialog id="modal" class="modal" aria-labelledby="modalTitle"><form method="dialog" id="modalForm"><h2 id="modalTitle">—</h2><div id="modalBody"></div><div class="modal-actions"><button value="cancel" class="btn outline-btn" id="modalCancel" formnovalidate>Cancel</button><button value="ok" class="btn gold-btn" id="modalOk">Confirm</button></div></form></dialog>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+</body>
+</html>

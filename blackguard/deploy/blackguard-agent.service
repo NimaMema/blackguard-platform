@@ -1,0 +1,24 @@
+# systemd unit for a Linux BLACKGUARD agent (reads auth logs; group 'adm' grants read access on Debian/Ubuntu).
+[Unit]
+Description=BLACKGUARD collector agent
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=blackguard-agent
+Group=blackguard-agent
+SupplementaryGroups=adm
+Environment=BLACKGUARD_AGENT_STATE=/var/lib/blackguard-agent
+ExecStart=/usr/bin/python3 /opt/blackguard/agents/blackguard_agent.py run --source linux-auth:/var/log/auth.log
+Restart=always
+RestartSec=10
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+ReadWritePaths=/var/lib/blackguard-agent
+MemoryMax=128M
+
+[Install]
+WantedBy=multi-user.target

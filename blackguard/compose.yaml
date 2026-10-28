@@ -1,0 +1,26 @@
+services:
+  blackguard:
+    build: .
+    ports:
+      # Loopback only. To accept agents from your LAN, enable TLS first (docs/DEPLOYMENT.md).
+      - "127.0.0.1:8000:8000"
+    read_only: true
+    tmpfs:
+      - /tmp
+    volumes:
+      - blackguard-data:/app/data
+    environment:
+      BLACKGUARD_SEED_DEMO: "1"
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    mem_limit: 512m
+    pids_limit: 256
+    logging:
+      driver: json-file
+      options: {max-size: "10m", max-file: "3"}
+
+volumes:
+  blackguard-data:

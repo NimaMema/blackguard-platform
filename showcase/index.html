@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <meta name="theme-color" content="#0a0c0f">
+  <meta name="description" content="BLACKGUARD — The Guardian of Your Network and Information. An experimental, local-first, open-source security monitoring platform: agents, explainable detections, evidence-backed incidents and approval-gated response.">
+  <meta property="og:title" content="BLACKGUARD — The Guardian of Your Network and Information">
+  <meta property="og:description" content="Experimental local-first security monitoring: enrolled agents, explainable ATT&amp;CK-mapped detections, evidence-backed investigations, and responses that never run without approval.">
+  <meta property="og:image" content="assets/social-preview.png">
+  <title>BLACKGUARD — The Guardian of Your Network and Information</title>
+  <link rel="icon" href="assets/shield.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/showcase.css">
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<header class="site-header">
+  <a class="brand" href="#top" aria-label="BLACKGUARD home"><img src="assets/shield.svg" alt="" width="30" height="35"><span>BLACKGUARD</span></a>
+  <nav aria-label="Sections"><a href="#capabilities">Capabilities</a><a href="#screens">Screens</a><a href="#architecture">Architecture</a><a href="#security">Security</a><a href="#maturity">Maturity</a><a class="nav-cta" href="demo/index.html">Live demo ↗</a></nav>
+</header>
+
+<main id="content">
+<section class="hero" id="top" aria-labelledby="hero-title">
+  <div class="hero-copy">
+    <p class="eyebrow">✦ OPEN-SOURCE · LOCAL-FIRST · <span class="badge">EXPERIMENTAL</span></p>
+    <h1 id="hero-title">BLACKGUARD</h1>
+    <p class="tagline">The Guardian of Your Network and Information</p>
+    <p class="lede">A security monitoring and defensive-response platform you run yourself. Enrolled agents collect Windows, Linux and router events; transparent rules turn them into evidence-backed incidents; and nothing changes on your network without an administrator's approval.</p>
+    <div class="cta-row">
+      <a class="btn gold" href="demo/index.html">Launch the interactive demo ↗</a>
+      <a class="btn outline" href="https://github.com/NimaMema/blackguard-platform">View the source</a>
+    </div>
+    <p class="fineprint">The demo runs entirely in your browser on synthetic data processed by the real detection engine — no sign-up, no backend, nothing is stored.</p>
+  </div>
+  <div class="hero-art" aria-hidden="true"><div class="halo"></div><div class="halo two"></div><img src="assets/shield.svg" alt="" width="220" height="254"><span>VIGILANTIA • INVICTA</span></div>
+</section>
+
+<section class="pillars" id="capabilities" aria-labelledby="cap-title">
+  <h2 id="cap-title" class="section-title"><span>01</span> What it does today</h2>
+  <div class="pillar-grid">
+    <article class="pillar"><h3>Observe</h3><p>Agents you explicitly enroll and approve collect security events and buffer them durably while offline.</p>
+      <ul><li>Windows Security &amp; System logs (PowerShell agent)</li><li>Linux auth logs &amp; systemd journal</li><li>Router/firewall syslog: netfilter, UFW, pfSense/OPNsense, OpenWrt, MikroTik, DHCP</li><li>Device inventory with per-attribute provenance — never a network scan</li></ul></article>
+    <article class="pillar"><h3>Detect</h3><p>19 deterministic rules mapped to MITRE ATT&amp;CK, with tunable thresholds and written reasoning for every confidence level.</p>
+      <ul><li>Brute force, password spraying, success-after-failures</li><li>Backdoor accounts, privileged-group changes, log clearing</li><li>Port scans, cross-device correlation, new devices</li><li>Collector outages classified: reboot vs. agent stopped vs. unreachable</li></ul></article>
+    <article class="pillar"><h3>Defend</h3><p>Guardian Response proposes actions with their impact and rollback plan; an administrator must approve; a person performs them; everything is audited.</p>
+      <ul><li>Evidence-linked investigation workspace &amp; timeline</li><li>Approval-gated response workflow — no automatic blocking</li><li>Markdown, JSON &amp; pseudonymised reports</li><li>Hash-chained, tamper-evident audit log</li></ul></article>
+  </div>
+</section>
+
+<section id="screens" aria-labelledby="screens-title">
+  <h2 id="screens-title" class="section-title"><span>02</span> The command centre</h2>
+  <p class="section-lede">Screens captured from the interactive demo. All data shown is synthetic.</p>
+  <div class="screens">
+    <figure class="wide"><img src="assets/screens/command-centre.png" alt="Command centre: metrics, hourly activity chart, threat posture and active incidents" loading="lazy" width="1440" height="900"><figcaption>Command centre — posture, activity and the incident watchlist</figcaption></figure>
+    <figure><img src="assets/screens/investigation.png" alt="Incident investigation workspace with evidence timeline, confidence reasoning and MITRE ATT&amp;CK mapping" loading="lazy" width="1440" height="900"><figcaption>Investigation workspace — evidence, reasoning, ATT&amp;CK</figcaption></figure>
+    <figure><img src="assets/screens/response.png" alt="Guardian Response actions with impact statements and approval controls" loading="lazy" width="1440" height="900"><figcaption>Guardian Response — approval-gated, audited</figcaption></figure>
+    <figure><img src="assets/screens/agents.png" alt="Agent management showing online, offline and pending agents with health details" loading="lazy" width="1440" height="900"><figcaption>Agents — enrollment, health, outage causes</figcaption></figure>
+    <figure><img src="assets/screens/rules.png" alt="Detection rule library with thresholds and ATT&amp;CK links" loading="lazy" width="1440" height="900"><figcaption>Detection rules — transparent and tunable</figcaption></figure>
+  </div>
+</section>
+
+<section id="architecture" aria-labelledby="arch-title">
+  <h2 id="arch-title" class="section-title"><span>03</span> How it fits together</h2>
+  <figure class="diagram">
+    <svg viewBox="0 0 960 360" role="img" aria-labelledby="arch-desc">
+      <title id="arch-desc">Agents on Windows, Linux and a router send events over HTTPS with per-agent credentials to the BLACKGUARD server, which validates, deduplicates and stores them in SQLite, runs detection rules, creates incidents and gates responses behind approval; administrators use the browser dashboard.</title>
+      <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="ar"/></marker></defs>
+      <g class="lane"><rect x="10" y="20" width="250" height="320" rx="4"/><text x="28" y="48" class="lane-t">YOUR DEVICES</text></g>
+      <g class="node"><rect x="30" y="70" width="210" height="62" rx="3"/><text x="46" y="96">Windows agent</text><text x="46" y="117" class="sub">Security / System log</text></g>
+      <g class="node"><rect x="30" y="150" width="210" height="62" rx="3"/><text x="46" y="176">Linux agent</text><text x="46" y="197" class="sub">auth.log · journald · ARP</text></g>
+      <g class="node"><rect x="30" y="230" width="210" height="62" rx="3"/><text x="46" y="256">Router / firewall</text><text x="46" y="277" class="sub">UDP syslog → LAN agent</text></g>
+      <g class="lane srv"><rect x="330" y="20" width="420" height="320" rx="4"/><text x="348" y="48" class="lane-t">BLACKGUARD SERVER · stdlib Python</text></g>
+      <g class="node"><rect x="350" y="70" width="180" height="56" rx="3"/><text x="366" y="94">Ingestion</text><text x="366" y="113" class="sub">validate · redact · dedupe</text></g>
+      <g class="node"><rect x="550" y="70" width="180" height="56" rx="3"/><text x="566" y="94">Detection engine</text><text x="566" y="113" class="sub">19 ATT&amp;CK-mapped rules</text></g>
+      <g class="node"><rect x="350" y="150" width="180" height="56" rx="3"/><text x="366" y="174">SQLite (WAL)</text><text x="366" y="193" class="sub">events · incidents · audit</text></g>
+      <g class="node"><rect x="550" y="150" width="180" height="56" rx="3"/><text x="566" y="174">Incidents</text><text x="566" y="193" class="sub">evidence · timeline</text></g>
+      <g class="node gold"><rect x="550" y="230" width="180" height="56" rx="3"/><text x="566" y="254">Guardian Response</text><text x="566" y="273" class="sub">approval required</text></g>
+      <g class="node"><rect x="350" y="230" width="180" height="56" rx="3"/><text x="366" y="254">Auth · RBAC · audit</text><text x="366" y="273" class="sub">sessions · CSRF · limits</text></g>
+      <g class="node"><rect x="790" y="140" width="160" height="76" rx="3"/><text x="806" y="168">Dashboard</text><text x="806" y="188" class="sub">administrators</text><text x="806" y="205" class="sub">analysts · viewers</text></g>
+      <path class="flow" d="M240 101 H350" marker-end="url(#arrow)"/><path class="flow" d="M240 181 C300 181 300 110 350 110" marker-end="url(#arrow)"/>
+      <path class="flow" d="M240 261 C310 261 300 120 350 120" marker-end="url(#arrow)"/>
+      <path class="flow" d="M530 98 H550" marker-end="url(#arrow)"/><path class="flow" d="M440 126 V150" marker-end="url(#arrow)"/>
+      <path class="flow" d="M640 126 V150" marker-end="url(#arrow)"/><path class="flow" d="M640 206 V230" marker-end="url(#arrow)"/>
+      <path class="flow" d="M790 178 H730" marker-end="url(#arrow)"/>
+      <text x="252" y="92" class="sub">HTTPS · per-agent credential</text>
+    </svg>
+    <figcaption>Agents authenticate with their own credential and buffer events locally; the server derives identity from the credential, deduplicates every event, and never acts without approval.</figcaption>
+  </figure>
+</section>
+
+<section id="security" aria-labelledby="sec-title">
+  <h2 id="sec-title" class="section-title"><span>04</span> Security by design</h2>
+  <div class="facts">
+    <div><h3>Accounts</h3><p>Individual users, admin / analyst / viewer roles, scrypt hashing, HttpOnly SameSite=Strict sessions, CSRF tokens, lockout and rate limits.</p></div>
+    <div><h3>Agents</h3><p>One-time enrollment codes, administrator approval with a fingerprint check, hashed per-agent credentials, two-phase rotation, instant revocation.</p></div>
+    <div><h3>Data</h3><p>Secrets redacted before storage, raw logs off by default, pseudonymised exports, verified backups, retention that never deletes open-incident evidence.</p></div>
+    <div><h3>Web</h3><p>Strict Content-Security-Policy, no <code>innerHTML</code>, parameterised SQL, bounded requests, TLS for anything beyond localhost.</p></div>
+    <div><h3>Reliability</h3><p>At-least-once delivery with idempotent storage — tested across server restarts and dropped acknowledgements. Loss cases are documented, never hidden.</p></div>
+    <div><h3>No dependencies</h3><p>The server and Python agent use only the Python standard library. No cloud services, no paid APIs, optional local AI via Ollama.</p></div>
+  </div>
+</section>
+
+<section id="engineering" aria-labelledby="eng-title">
+  <h2 id="eng-title" class="section-title"><span>05</span> Engineering</h2>
+  <div class="stats">
+    <div><strong>110+</strong><span>automated Python tests — API, RBAC, agents, migrations, chaos delivery, TLS</span></div>
+    <div><strong>19</strong><span>detection rules, validated against realistic attack and benign datasets</span></div>
+    <div><strong>0</strong><span>third-party runtime dependencies on the server</span></div>
+    <div><strong>CI</strong><span>tests on Python 3.10–3.13, browser E2E with accessibility checks, Docker, Windows smoke test, bandit, secret scan</span></div>
+  </div>
+  <pre class="code" aria-label="Quick start"><code>git clone https://github.com/NimaMema/blackguard-platform
+cd blackguard-platform/blackguard
+python3 start.py            # prints a one-time setup code → http://127.0.0.1:8000</code></pre>
+</section>
+
+<section id="maturity" class="maturity" aria-labelledby="mat-title">
+  <h2 id="mat-title" class="section-title"><span>06</span> Honest maturity</h2>
+  <div class="maturity-grid">
+    <div><h3>What it is</h3><ul><li>An experimental, actively developed open-source project</li><li>Used on a real Windows home setup by its author</li><li>A foundation designed to grow toward multi-site and business use</li></ul></div>
+    <div><h3>What it is not (yet)</h3><ul><li>Not independently security-reviewed or certified</li><li>Not a replacement for antivirus/EDR or a commercial SIEM</li><li>No multi-day soak or high-volume benchmark published yet</li><li>Detections are leads for a human — not proof of compromise</li></ul></div>
+  </div>
+  <p class="fineprint">Created by Nima Memarahari (<a href="https://github.com/NimaMema">@NimaMema</a>). BLACKGUARD is an experimental platform today, with commercial development planned.</p>
+</section>
+</main>
+
+<footer class="site-footer"><img src="assets/shield.svg" alt="" width="22" height="25"><span>BLACKGUARD · © 2026 Nima Memarahari · MIT licensed · Experimental release — not independently security-certified</span><a href="demo/index.html">Interactive demo</a></footer>
+</body>
+</html>
